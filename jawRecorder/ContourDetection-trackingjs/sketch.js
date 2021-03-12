@@ -19,6 +19,8 @@ function preload() {
   img = loadImage('/screenshot.png');
 }
 
+var offscreenCanvas;
+
 function setup() {
     var w = 640,
         h = 480;
@@ -52,7 +54,7 @@ function setup() {
 
     console.log('img', img);
 
-    var offscreenCanvas = createGraphics(500, 500);
+    offscreenCanvas = createGraphics(500, 500);
     offscreenCanvas.canvas.id = 'newOffscreenCanvasId'
     offscreenCanvas.canvas.style.display = 'block'
     offscreenCanvas.canvas.style.top = '400px'
@@ -70,7 +72,7 @@ function setup() {
 
 
     tracker = new tracking.ColorTracker(['match']);
-    tracker.minDimension = 1; // make this smaller to track smaller objects
+    tracker.minDimension = 10; // make this smaller to track smaller objects
 
     
 
@@ -87,7 +89,6 @@ function setup() {
         })
     });
 
-    tracking.track('#newOffscreenCanvasId', tracker);
 }
 
 function draw() {
@@ -98,4 +99,9 @@ function draw() {
         target = capture.get(mouseX, mouseY);
         setTarget(target[0], target[1], target[2]);
     }
+
+    clear();
+    offscreenCanvas.ellipse(mouseX, mouseY, 10, 10);
+    tracking.track('#newOffscreenCanvasId', tracker);
+
 }
