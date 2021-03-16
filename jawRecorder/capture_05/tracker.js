@@ -7,14 +7,15 @@ var rhi, ghi, bhi;
 var rlo, glo, blo;
 
 let offscreenCanvas;
+let trackingData;
 
 //*****************************************************************
 
 function setTarget(r, g, b, range) {
-    range = range || 32;
-    rhi = r + range, rlo = r - range;
-    ghi = g + range, glo = g - range;
-    bhi = b + range, blo = b - range;
+  range = range || 32;
+  rhi = r + range, rlo = r - range;
+  ghi = g + range, glo = g - range;
+  bhi = b + range, blo = b - range;
 }
 
 //*****************************************************************
@@ -44,45 +45,57 @@ function setTarget(r, g, b, range) {
 
 function initTracker(){
 
-    setTarget(255, 255, 255); // by default track white
-    tracking.ColorTracker.registerColor('match', function (r, g, b) {
-        if (r <= rhi && r >= rlo &&
-            g <= ghi && g >= glo &&
-            b <= bhi && b >= blo) {
-            return true;
-        }
-        return false;
+  trails = createGraphics(captureWidth, captureHeight);
+  trails.clear();
+
+  setTarget(255, 255, 255); // by default track white
+  tracking.ColorTracker.registerColor('match', function (r, g, b) {
+    if (r <= rhi && r >= rlo &&
+      g <= ghi && g >= glo &&
+      b <= bhi && b >= blo) {
+        return true;
+      }
+      return false;
     });
 
-//    console.log('img', img);
+    //    console.log('img', img);
 
     offscreenCanvas = createGraphics(captureWidth, captureHeight);
     offscreenCanvas.canvas.id = 'newOffscreenCanvasId'
     //offscreenCanvas.canvas.style.display = 'block'
     //offscreenCanvas.canvas.style.top = '400px'
-  //  offscreenCanvas.image(img, 0, 0)
-  //  console.log('offscreenCanvas.canvas', offscreenCanvas.canvas);
+    //  offscreenCanvas.image(img, 0, 0)
+    //  console.log('offscreenCanvas.canvas', offscreenCanvas.canvas);
 
 
     var offscreenCanvasElement = document.querySelector('#newOffscreenCanvasId')
     var width = offscreenCanvasElement.width;
     var height = offscreenCanvasElement.height;
     var context = offscreenCanvasElement.getContext('2d');
-  //  var imageData = context.getImageData(0, 0, width, height);
-//    console.log('imageData', imageData);
+    //  var imageData = context.getImageData(0, 0, width, height);
+    //    console.log('imageData', imageData);
     // tracker.track(imageData.data, width, height);
 
 
     tracker = new tracking.ColorTracker(['match']);
-  //  let minDim = panel.getSliderValue();
+    //  let minDim = panel.getSliderValue();
     tracker.minDimension = 40; // make this smaller to track smaller objects
-}
 
-function trackColor() {
 
-  let minDim = panel.getSliderValue("mindimension");
+    tracker.on('track', function (event) {
+      //    console.log('event', event);
+      //  cnv.clear();
 
-      tracker.minDimension = minDim; // make this smaller to track smaller objects
+      trackingData = event.data;
+
+    });
+  }
+
+  function trackColor() {
+
+    let minDim = panel.getSliderValue("mindimension");
+
+    tracker.minDimension = minDim; // make this smaller to track smaller objects
     // if (mouseIsPressed &&
     //     mouseX > 0 && mouseX < width &&
     //     mouseY > 0 && mouseY < height) {
@@ -91,43 +104,51 @@ function trackColor() {
     //     setTarget(target[0], target[1], target[2]);
     // }
 
-//    image(offscreenCanvas,0,0);
+    //    image(offscreenCanvas,0,0);
 
-//    clear();
+    //    clear();
     offscreenCanvas.image(pass2,0,0);
     tracking.track('#newOffscreenCanvasId', tracker);
 
     // -----------------------
 
-    tracker.on('track', function (event) {
-  //    console.log('event', event);
-      //  cnv.clear();
-      push();
-        strokeWeight(1);
-        stroke(255, 128, 0);
-        noFill();
-        event.data.forEach(function (r) {
-            push();
-            rectMode(CENTER);
-            translate(r.x + captureWidth + r.width/2, r.y + r.height/2);
-            rect(0,0, r.width, r.height);
-            line(-r.width*.4, 0, r.width*.4, 0);
-            line(0, -r.height*.4, 0, r.height*.4);
-            pop();
-        })
+
+    push();
+    strokeWeight(2);
+    stroke(0, 255, 191);
+    noFill();
+    if(trackingData){ //if there is tracking data to look at, then...
+      for (var i = 0; i < trackingData.length; i++) { //loop through each of the detected colors
+        //   console.log( trackingData[i] );
+        let blob = trackingData[i];
+        push();
+        rectMode(CENTER);
+        translate(blob.x + captureWidth + blob.width/2, blob.y + blob.height/2);
+        rect(0,0, blob.width, blob.height);
+        line(-blob.width*.2, 0, blob.width*.2, 0);
+        line(0, -blob.height*.2, 0, blob.height*.2);
         pop();
-    });
 
-}
-
-
-//*****************************************************************
-
-
-//*****************************************************************
-
-
-//*****************************************************************
+        trails.push();
+        trails.fill(255,128,0,40);
+        trails.noStroke();
+        trails.ellipse(blob.x, blob.y, 5, 5);
+        trails.pop();
+      }
+    }
+    pop();
 
 
-//*****************************************************************
+  }
+
+
+  //*****************************************************************
+
+
+  //*****************************************************************
+
+
+  //*****************************************************************
+
+
+  //*****************************************************************

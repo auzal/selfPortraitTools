@@ -5,6 +5,8 @@ let font;
 let captureWidth = 640;
 let captureHeight = 480;
 
+let trails;
+
 
 //*****************************************************************
 
@@ -59,6 +61,9 @@ function draw() {
   }
 
   checkColorPick();
+
+  image(trails, captureWidth, 0);
+
   renderFrames();
 }
 
