@@ -48,6 +48,8 @@ function initTracker(){
   trails = createGraphics(captureWidth, captureHeight);
   trails.clear();
 
+  faceData = new FaceData();
+
   setTarget(255, 255, 255); // by default track white
   tracking.ColorTracker.registerColor('match', function (r, g, b) {
     if (r <= rhi && r >= rlo &&
@@ -130,9 +132,9 @@ function initTracker(){
         pop();
 
         trails.push();
-        trails.fill(255,128,0,40);
+        trails.fill(255, 0, 93, 30);
         trails.noStroke();
-        trails.ellipse(blob.x, blob.y, 5, 5);
+        trails.ellipse(blob.x + blob.width/2, blob.y + blob.height/2, 5, 5);
         trails.pop();
       }
     }
@@ -144,6 +146,19 @@ function initTracker(){
 
   //*****************************************************************
 
+  function setFaceData(){
+    if(trackingData){ //if there is tracking data to look at, then...
+      let dataArray = [];
+      for (var i = 0; i < trackingData.length; i++) { //loop through each of the detected colors
+          let blob = trackingData[i];
+          let pos = createVector(blob.x + blob.width/2, blob.y + blob.height/2);
+        dataArray.push(pos);
+      }
+      faceData.setData(dataArray);
+    }
+
+
+  }
 
   //*****************************************************************
 

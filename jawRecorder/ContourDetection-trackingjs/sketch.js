@@ -38,9 +38,9 @@ function setup() {
     capture.parent('container');
     capture.elt.id = 'p5video';
 
-    cnv = createCanvas(w, h);
-    cnv.parent('container');
-    // capture.hide(); // tracking.js can't track the video when it's hidden
+createCanvas(w, h);
+//    cnv.parent('container');
+     capture.hide(); // tracking.js can't track the video when it's hidden
 
     setTarget(255, 255, 255); // by default track white
     tracking.ColorTracker.registerColor('match', function (r, g, b) {
@@ -56,8 +56,8 @@ function setup() {
 
     offscreenCanvas = createGraphics(500, 500);
     offscreenCanvas.canvas.id = 'newOffscreenCanvasId'
-    offscreenCanvas.canvas.style.display = 'block'
-    offscreenCanvas.canvas.style.top = '400px'
+    //offscreenCanvas.canvas.style.display = 'block'
+    //offscreenCanvas.canvas.style.top = '400px'
     offscreenCanvas.image(img, 0, 0)
     console.log('offscreenCanvas.canvas', offscreenCanvas.canvas);
 
@@ -74,20 +74,6 @@ function setup() {
     tracker = new tracking.ColorTracker(['match']);
     tracker.minDimension = 10; // make this smaller to track smaller objects
 
-    
-
-    // -----------------------
-
-    tracker.on('track', function (event) {
-      console.log('event', event);
-        cnv.clear();
-        strokeWeight(4);
-        stroke(255, 0, 0);
-        noFill();
-        event.data.forEach(function (r) {
-            rect(r.x, r.y, r.width, r.height);
-        })
-    });
 
 }
 
@@ -100,8 +86,23 @@ function draw() {
         setTarget(target[0], target[1], target[2]);
     }
 
-    clear();
+    image(offscreenCanvas,0,0);
+
+//    clear();
     offscreenCanvas.ellipse(mouseX, mouseY, 10, 10);
     tracking.track('#newOffscreenCanvasId', tracker);
+
+    // -----------------------
+
+    tracker.on('track', function (event) {
+      console.log('event', event);
+      //  cnv.clear();
+        strokeWeight(4);
+        stroke(255, 0, 0);
+        noFill();
+        event.data.forEach(function (r) {
+            rect(r.x, r.y, r.width, r.height);
+        })
+    });
 
 }

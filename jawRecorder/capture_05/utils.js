@@ -23,6 +23,10 @@ function initPanel(){
   panel.addToggle("blur", true);
   panel.addToggle("track", true);
   panel.addSlider("minDimension", 5, 100);
+  panel.addToggle("show trails", false);
+  panel.addButton("set min");
+  panel.addButton("set max");
+  panel.addButton("set ref");
   //  panel.addToggle("togggggg");
   //panel.addSlider("yes");
 }
@@ -36,10 +40,10 @@ function renderFrames(){
   noFill();
   strokeWeight(2);
   rect(0,0,width, height);
-  line(captureWidth,0,captureWidth, captureHeight);
+  line(captureWidth,0,captureWidth, height);
   line(0,captureHeight,width, captureHeight);
   line(panel.x-12,captureHeight,panel.x-12, height);
-  line(panel.x + panel.width + 50,captureHeight,panel.x + panel.width + 50, height);
+  line(panel.x + panel.width + 70,captureHeight,panel.x + panel.width + 70, height);
   pop();
 }
 

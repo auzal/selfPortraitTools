@@ -8,6 +8,7 @@ let captureHeight = 480;
 let trails;
 
 
+
 //*****************************************************************
 
 function preload(){
@@ -48,22 +49,43 @@ function draw() {
   createThresholdImage();
   image(pass2, captureWidth,0);
 
-  fill(keyColor);
-  ellipse(30,30,30,30);
-
-
   panel.setLabelValue("FPS" , nfc(frameRate(),2));
-  panel.update();
+
   panel.render();
 
   if(panel.getToggleState("track")){
     trackColor();
+    setFaceData();
+    faceData.update();
+    faceData.render();
   }
 
   checkColorPick();
 
-  image(trails, captureWidth, 0);
+  if(panel.getToggleState("show trails")){
+    image(trails, captureWidth, 0);
+  }
 
+  if(panel.getButtonState("set ref")){
+    faceData.setReferenceDistance();
+  }
+
+  if(panel.getButtonState("set min")){
+    faceData.setMinDistance();
+  }
+
+  if(panel.getButtonState("set max")){
+    faceData.setMaxDistance();
+  }
+
+  push();
+  fill(keyColor);
+  stroke(255);
+  strokeWeight(2);
+  rect(captureWidth,0,25,25);
+  pop();
+
+  panel.update();
   renderFrames();
 }
 
@@ -72,6 +94,7 @@ function draw() {
 function mousePressed(){
   if(waitingForColorPick){
     keyColor = capture.get(mouseX,mouseY);
+    trails.clear();
   }
   panel.checkClick(mouseX, mouseY);
 }
