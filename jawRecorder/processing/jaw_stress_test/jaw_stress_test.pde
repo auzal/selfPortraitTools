@@ -1,9 +1,9 @@
 import processing.serial.*;
 
 float angle;
-float aperture;
+float aperture = 0;
 float minAngle = 0;
-float maxAngle = 50;
+float maxAngle = 30;
 
 PFont font;
 int offset = 75;
@@ -11,6 +11,13 @@ int offset = 75;
 boolean send = false;
 
 Serial myPort;  // Create object from Serial class
+
+boolean run = false;
+
+int interval = 30;
+int lastChange = 0;
+int hitCounter = 889;
+boolean opening = true;
 
 void setup() {
   size(500, 500);
@@ -27,6 +34,11 @@ void setup() {
 
 void draw() {
 
+  if (run) {
+
+    updatePosition();
+  }
+
   angle = map(aperture, 0, 1, minAngle, maxAngle);
   background(0);
 
@@ -37,13 +49,38 @@ void draw() {
   }
 }
 
-void mouseDragged() {
-  if (mouseY < pmouseY) {
-    decreaseAngle(pmouseY - mouseY);
-  } else if (mouseY > pmouseY) {
-    increaseAngle(mouseY - pmouseY);
+
+void updatePosition() {
+
+  if (millis() - lastChange > interval) {
+    lastChange = millis() - (millis() - lastChange - interval) ;
+
+    if (opening) {
+      aperture += 0.05;
+      aperture = constrain(aperture, 0, 1);
+      if (aperture >= 1) {
+        opening = false;
+      }
+    } else {
+      aperture -= 0.05;
+      aperture = constrain(aperture, 0, 1);
+      if (aperture <= 0) {
+        opening = true;
+        hitCounter ++;
+        println(hitCounter);
+      }
+    }
+    prepareSend();
   }
-  prepareSend();
+}
+
+void mouseDragged() {
+  //if (mouseY < pmouseY) {
+  //  decreaseAngle(pmouseY - mouseY);
+  //} else if (mouseY > pmouseY) {
+  //  increaseAngle(mouseY - pmouseY);
+  //}
+  //prepareSend();
 }
 
 void prepareSend() {
@@ -88,6 +125,19 @@ void renderUi() {
   dashedLine(0, 0, 500, 0);
   fill(255, 255, 0);
   text("MIN: " + minAngle + "º", 250, - 5);
+  
+  
+  pushStyle();
+  pushMatrix();
+  translate(0, - 80);
+  float w = textWidth("IMPACTS: " + hitCounter);
+  fill(255, 255, 0);
+  noStroke();
+  rect(0,4,w,-20);
+  fill(0);
+  text("IMPACTS: " + hitCounter, 0, 0);
+  popMatrix();
+  popStyle();
 
   pushMatrix();
   rotate(radians(maxAngle));
@@ -135,5 +185,16 @@ void dashedLine(float x1, float y1, float x2, float y2) {
     }
 
     dash = !dash;
+  }
+}
+
+void keyPressed() {
+
+  if (key == ' ') {
+
+    run = ! run;
+  } else  if (key == 'r' || key == 'R') {
+
+    hitCounter = 0;
   }
 }
